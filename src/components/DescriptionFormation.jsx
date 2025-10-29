@@ -1,5 +1,5 @@
-// DescriptionFormation.js
-import React, { useState, useEffect } from 'react';
+// DescriptionFormation.jsx
+import React, { useState } from 'react';
 import './DescriptionFormation.css';
 
 const DescriptionFormation = ({
@@ -7,7 +7,7 @@ const DescriptionFormation = ({
   descriptionEvenement = "Cette formation vous permettra de maîtriser les concepts avancés de React, incluant les hooks personnalisés, le contexte avancé, les performances et les bonnes pratiques de développement.",
   heureEvenement = "14:00 - 17:00",
   jourSemaine = 1, // 0=lundi, 6=dimanche
-  dossierImages = "/images/formation" // Chemin vers le dossier d'images
+  images = [] // Tableau d'images importées
 }) => {
   const [imageIndex, setImageIndex] = useState(0);
   const [showForm, setShowForm] = useState(false);
@@ -16,70 +16,46 @@ const DescriptionFormation = ({
     prenom: '',
     email: '',
     telephone: '',
-    date: ''
+    dateSelectionnee: ''
   });
   const [errors, setErrors] = useState({});
-  const [images, setImages] = useState([]);
-  const [datesDisponibles, setDatesDisponibles] = useState([]);
-  const [showDateDropdown, setShowDateDropdown] = useState(false);
 
   const jours = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
 
-  // Générer les dates disponibles pour les 3 prochains mois
-  useEffect(() => {
-    const genererDatesDisponibles = () => {
-      const dates = [];
-      const aujourdhui = new Date();
-      const finPeriode = new Date();
-      finPeriode.setMonth(aujourdhui.getMonth() + 3);
+  // Fonction pour générer les prochaines dates correspondant au jour de la semaine
+  const genererDatesDisponibles = () => {
+    const dates = [];
+    const aujourdHui = new Date();
+    
+    // Générer les 8 prochaines occurrences du jour de la semaine
+    for (let i = 0; i < 56; i++) { // 8 semaines pour être sûr d'avoir 8 dates
+      const date = new Date(aujourdHui);
+      date.setDate(aujourdHui.getDate() + i);
       
-      let dateCourante = new Date(aujourdhui);
-      
-      while (dateCourante <= finPeriode) {
-        if (dateCourante.getDay() === jourSemaine) {
-          dates.push(new Date(dateCourante));
-        }
-        dateCourante.setDate(dateCourante.getDate() + 1);
+      // Vérifier si c'est le bon jour de la semaine
+      if (date.getDay() === jourSemaine) {
+        dates.push(new Date(date));
+        if (dates.length >= 8) break; // On veut 8 dates maximum
       }
-      
-      setDatesDisponibles(dates);
-    };
+    }
+    
+    return dates;
+  };
 
-    genererDatesDisponibles();
-  }, [jourSemaine]);
+  const datesDisponibles = genererDatesDisponibles();
 
-  // Simulation du chargement des images depuis un dossier
-  useEffect(() => {
-    const chargerImages = () => {
-      // En environnement de développement, on simule des images
-      if (process.env.NODE_ENV === 'development') {
-        const imagesSimulees = [
-          `${dossierImages}/image1.jpg`,
-          `${dossierImages}/image2.jpg`,
-          `${dossierImages}/image3.jpg`,
-          `${dossierImages}/image4.jpg`
-        ];
-        setImages(imagesSimulees);
-      } else {
-        // En production, on charge les images depuis le dossier
-        try {
-          const context = require.context('../../public/images/formation', false, /\.(jpg|jpeg|png|gif)$/);
-          const imagesPaths = context.keys().map(context);
-          setImages(imagesPaths);
-        } catch (error) {
-          console.warn('Erreur lors du chargement des images, utilisation des images par défaut');
-          setImages([
-            "https://via.placeholder.com/800x400/667eea/ffffff?text=Image+1",
-            "https://via.placeholder.com/800x400/764ba2/ffffff?text=Image+2",
-            "https://via.placeholder.com/800x400/f093fb/ffffff?text=Image+3",
-            "https://via.placeholder.com/800x400/4facfe/ffffff?text=Image+4"
-          ]);
-        }
-      }
-    };
+  const formatDatePourSelect = (date) => {
+    return date.toISOString().split('T')[0]; // Format YYYY-MM-DD pour la valeur
+  };
 
-    chargerImages();
-  }, [dossierImages]);
+  const formatDateAffichage = (date) => {
+    return date.toLocaleDateString('fr-FR', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
 
   const nextImage = () => {
     if (images.length > 0) {
@@ -112,32 +88,13 @@ const DescriptionFormation = ({
       ...prev,
       [name]: value
     }));
-  };
-
-  const selectDate = (date) => {
-    const dateFormatee = formatDateForDisplay(date);
-    setFormData(prev => ({
-      ...prev,
-      date: dateFormatee
-    }));
-    setShowDateDropdown(false);
-  };
-
-  const formatDateForDisplay = (date) => {
-    return date.toLocaleDateString('fr-FR', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
-
-  const formatDateForDropdown = (date) => {
-    return date.toLocaleDateString('fr-FR', {
-      weekday: 'short',
-      day: 'numeric',
-      month: 'long'
-    });
+    // Effacer l'erreur du champ quand l'utilisateur tape
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
   };
 
   const handleSubmit = (e) => {
@@ -163,8 +120,8 @@ const DescriptionFormation = ({
       newErrors.email = 'Format d\'email invalide';
     }
 
-    if (!formData.date.trim()) {
-      newErrors.date = 'La date est requise';
+    if (!formData.dateSelectionnee) {
+      newErrors.dateSelectionnee = 'Veuillez sélectionner une date';
     }
 
     if (formData.telephone && !validatePhone(formData.telephone)) {
@@ -172,11 +129,24 @@ const DescriptionFormation = ({
     }
 
     if (Object.keys(newErrors).length === 0) {
+      // Récupérer la date formatée pour l'affichage
+      const dateSelectionnee = datesDisponibles.find(date => 
+        formatDatePourSelect(date) === formData.dateSelectionnee
+      );
+      const dateFormatee = dateSelectionnee ? formatDateAffichage(dateSelectionnee) : formData.dateSelectionnee;
+      
       // Simulation d'envoi des données
       console.log('Données soumises:', formData);
-      alert(`Inscription réussie pour le ${formData.date} !`);
-      setFormData({ nom: '', prenom: '', email: '', telephone: '', date: '' });
+      alert(`Inscription réussie pour le ${dateFormatee} ! Un email de confirmation vous a été envoyé.`);
+      setFormData({ 
+        nom: '', 
+        prenom: '', 
+        email: '', 
+        telephone: '', 
+        dateSelectionnee: '' 
+      });
       setShowForm(false);
+      setErrors({});
     } else {
       setErrors(newErrors);
     }
@@ -189,26 +159,14 @@ const DescriptionFormation = ({
   const closeForm = () => {
     setShowForm(false);
     setErrors({});
-    setFormData({ nom: '', prenom: '', email: '', telephone: '', date: '' });
-    setShowDateDropdown(false);
+    setFormData({ 
+      nom: '', 
+      prenom: '', 
+      email: '', 
+      telephone: '', 
+      dateSelectionnee: '' 
+    });
   };
-
-  // Si pas d'images chargées, afficher un message de chargement
-  if (images.length === 0) {
-    return (
-      <div className="formation-container">
-        <div className="formation-content">
-          <button className="back-button" onClick={handleBack}>
-            ← Retour à la page précédente
-          </button>
-          <div className="loading-message">
-            <div className="loading-spinner"></div>
-            <p>Chargement des images...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="formation-container">
@@ -221,43 +179,49 @@ const DescriptionFormation = ({
           {/* Section Galerie d'images */}
           <div className="gallery-section">
             <div className="gallery-container">
-              <img 
-                src={images[imageIndex]} 
-                alt={`${titreEvenement} - Image ${imageIndex + 1}`}
-                className="gallery-image"
-                onError={(e) => {
-                  e.target.src = `https://via.placeholder.com/800x400/667eea/ffffff?text=Image+${imageIndex + 1}`;
-                }}
-              />
-              
-              {images.length > 1 && (
+              {images.length > 0 ? (
                 <>
-                  <button className="nav-button prev" onClick={prevImage}>
-                    ‹
-                  </button>
-                  <button className="nav-button next" onClick={nextImage}>
-                    ›
-                  </button>
-                  
-                  <div className="image-counter">
-                    {imageIndex + 1} / {images.length}
+                  <div className="image-main-container">
+                    <img 
+                      src={images[imageIndex]} 
+                      alt={`${titreEvenement} - Image ${imageIndex + 1}`}
+                      className="gallery-image"
+                    />
+                    
+                    {images.length > 1 && (
+                      <>
+                        <button className="nav-button prev" onClick={prevImage}>
+                          ‹
+                        </button>
+                        <button className="nav-button next" onClick={nextImage}>
+                          ›
+                        </button>
+                        
+                        <div className="image-counter">
+                          {imageIndex + 1} / {images.length}
+                        </div>
+                      </>
+                    )}
                   </div>
                   
-                  <div className="thumbnail-container">
-                    {images.map((img, index) => (
-                      <img
-                        key={index}
-                        src={img}
-                        alt={`Miniature ${index + 1}`}
-                        className={`thumbnail ${index === imageIndex ? 'active' : ''}`}
-                        onClick={() => setImageIndex(index)}
-                        onError={(e) => {
-                          e.target.src = `https://via.placeholder.com/60x40/667eea/ffffff?text=${index + 1}`;
-                        }}
-                      />
-                    ))}
-                  </div>
+                  {images.length > 1 && (
+                    <div className="thumbnail-container">
+                      {images.map((img, index) => (
+                        <img
+                          key={index}
+                          src={img}
+                          alt={`Miniature ${index + 1}`}
+                          className={`thumbnail ${index === imageIndex ? 'active' : ''}`}
+                          onClick={() => setImageIndex(index)}
+                        />
+                      ))}
+                    </div>
+                  )}
                 </>
+              ) : (
+                <div className="no-images">
+                  <p>Aucune image disponible</p>
+                </div>
               )}
             </div>
           </div>
@@ -269,7 +233,7 @@ const DescriptionFormation = ({
               <div className="formation-meta">
                 <div className="meta-item">
                   <span className="meta-icon">📅</span>
-                  <span>Tous les {jours[jourSemaine]}s</span>
+                  <span>Tous les {jours[jourSemaine]}</span>
                 </div>
                 <div className="meta-item">
                   <span className="meta-icon">⏰</span>
@@ -296,9 +260,11 @@ const DescriptionFormation = ({
         {showForm && (
           <div className="form-fullscreen-overlay">
             <div className="form-container">
-              <form className="inscription-form" onSubmit={handleSubmit}>
+              <div className="form-header">
                 <h3>Inscription à la formation</h3>
-                
+              </div>
+              
+              <form className="inscription-form" onSubmit={handleSubmit}>
                 <div className="form-group">
                   <label htmlFor="prenom">Prénom *</label>
                   <input
@@ -341,36 +307,39 @@ const DescriptionFormation = ({
                   {errors.email && <span className="error-message">{errors.email}</span>}
                 </div>
 
-                <div className="form-group date-group">
-                  <label htmlFor="date">Date de formation *</label>
-                  <div className="date-input-container">
-                    <input
-                      type="text"
-                      id="date"
-                      name="date"
-                      value={formData.date}
-                      readOnly
-                      className={`date-input ${errors.date ? 'error' : ''} ${showDateDropdown ? 'active' : ''}`}
-                      placeholder="Sélectionnez une date"
-                      onClick={() => setShowDateDropdown(!showDateDropdown)}
-                    />
-                    <span className="date-dropdown-arrow">▼</span>
-                    
-                    {showDateDropdown && (
-                      <div className="date-dropdown">
-                        {datesDisponibles.map((date, index) => (
-                          <div
-                            key={index}
-                            className="date-option"
-                            onClick={() => selectDate(date)}
-                          >
-                            {formatDateForDropdown(date)}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  {errors.date && <span className="error-message">{errors.date}</span>}
+                {/* SÉLECTEUR DE DATE AMÉLIORÉ */}
+                <div className="form-group">
+                  <label htmlFor="dateSelectionnee">Date de formation *</label>
+                  <select
+                    id="dateSelectionnee"
+                    name="dateSelectionnee"
+                    value={formData.dateSelectionnee}
+                    onChange={handleInputChange}
+                    className={errors.dateSelectionnee ? 'error' : ''}
+                  >
+                    <option value="">Sélectionnez une date</option>
+                    {datesDisponibles.map((date, index) => (
+                      <option 
+                        key={index} 
+                        value={formatDatePourSelect(date)}
+                      >
+                        {formatDateAffichage(date)}
+                      </option>
+                    ))}
+                  </select>
+                  {/* AFFICHAGE DE LA DATE SÉLECTIONNÉE */}
+                  {formData.dateSelectionnee && (
+                    <div className="selected-date-display">
+                      Date sélectionnée : <strong>
+                        {formatDateAffichage(
+                          datesDisponibles.find(date => 
+                            formatDatePourSelect(date) === formData.dateSelectionnee
+                          )
+                        )}
+                      </strong>
+                    </div>
+                  )}
+                  {errors.dateSelectionnee && <span className="error-message">{errors.dateSelectionnee}</span>}
                 </div>
 
                 <div className="form-group">
@@ -392,7 +361,7 @@ const DescriptionFormation = ({
                     Confirmer l'inscription
                   </button>
                   <button type="button" className="cancel-button" onClick={closeForm}>
-                    Retour à la description
+                    Annuler
                   </button>
                 </div>
               </form>

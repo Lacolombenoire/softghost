@@ -1,0 +1,761 @@
+/* DescriptionFormation.css */
+.formation-container {
+  min-height: 100vh;
+  min-width: 100vw;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow-y: auto;
+}
+
+.formation-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.back-button {
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1em;
+  margin-bottom: 30px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.back-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateX(-5px);
+}
+
+.formation-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: start;
+}
+
+/* Section Galerie - MODIFICATIONS POUR AGGRANDIR L'IMAGE PRINCIPALE */
+.gallery-section {
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  height: fit-content; /* S'adapte au contenu */
+}
+
+.gallery-container {
+  position: relative;
+  border-radius: 15px;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  background: #f8f9fa;
+}
+
+/* Conteneur principal de l'image - AGGRANDI */
+.image-main-container {
+  position: relative;
+  width: 100%;
+  height: 500px; /* Hauteur augmentée */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  border-radius: 15px;
+  margin-bottom: 20px;
+  border: 2px solid #e9ecef; /* Bordure pour délimiter l'espace */
+}
+
+/* IMAGE PRINCIPALE - OCCUPE MAXIMUM D'ESPACE */
+.gallery-image {
+  max-width: 95%; /* Presque toute la largeur */
+  max-height: 95%; /* Presque toute la hauteur */
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 12px;
+  transition: transform 0.3s ease;
+  /* Supprime les min-width/min-height pour permettre l'agrandissement maximum */
+}
+
+/* Pour garantir que l'image occupe bien l'espace */
+.gallery-image:not([src*="placeholder"]) {
+  width: auto;
+  height: auto;
+  max-width: 95%;
+  max-height: 95%;
+}
+
+/* CORRECTION DES FLÈCHES - POSITIONNEMENT CORRECT */
+.nav-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid #667eea;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  font-size: 28px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  color: #667eea;
+  font-weight: bold;
+}
+
+.nav-button:hover {
+  background: white;
+  transform: translateY(-50%) scale(1.15);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  color: #764ba2;
+  border-color: #764ba2;
+}
+
+.nav-button.prev {
+  left: 15px; /* Ajusté pour ne pas dépasser */
+}
+
+.nav-button.next {
+  right: 15px; /* Ajusté pour ne pas dépasser */
+}
+
+.image-counter {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 1em;
+  font-weight: 600;
+  z-index: 10;
+  backdrop-filter: blur(10px);
+}
+
+/* MINIATURES EN BAS - ESPACE RÉSERVÉ */
+.thumbnail-container {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: nowrap;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border: 2px solid #e9ecef;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #667eea #f1f3f4;
+  margin-top: 0; /* Pas de marge supérieure car déjà géré par image-main-container */
+  min-height: 90px; /* Hauteur minimale pour les miniatures */
+}
+
+/* Personnalisation de la barre de scroll pour les miniatures */
+.thumbnail-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.thumbnail-container::-webkit-scrollbar-track {
+  background: #f1f3f4;
+  border-radius: 4px;
+}
+
+.thumbnail-container::-webkit-scrollbar-thumb {
+  background: #667eea;
+  border-radius: 4px;
+}
+
+.thumbnail-container::-webkit-scrollbar-thumb:hover {
+  background: #764ba2;
+}
+
+.thumbnail {
+  width: 80px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: all 0.3s ease;
+  border: 3px solid transparent;
+  background: white;
+  flex-shrink: 0;
+}
+
+.thumbnail:hover {
+  opacity: 0.8;
+  transform: scale(1.15);
+}
+
+.thumbnail.active {
+  opacity: 1;
+  border-color: #667eea;
+  transform: scale(1.15);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* Section Informations */
+.info-section {
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.formation-header {
+  margin-bottom: 30px;
+}
+
+.formation-title {
+  color: #333;
+  font-size: 2.2em;
+  margin: 0 0 20px 0;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.formation-meta {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f8f9fa;
+  padding: 10px 15px;
+  border-radius: 10px;
+  font-weight: 500;
+  color: #555;
+}
+
+.meta-icon {
+  font-size: 1.2em;
+}
+
+.description-section {
+  margin-bottom: 30px;
+}
+
+.description-section h2 {
+  color: #333;
+  margin: 0 0 15px 0;
+  font-size: 1.5em;
+}
+
+.description-text {
+  color: #666;
+  line-height: 1.6;
+  font-size: 1.1em;
+  margin: 0;
+}
+
+.inscription-button {
+  width: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 18px;
+  border-radius: 12px;
+  font-size: 1.2em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 20px;
+}
+
+.inscription-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+}
+
+/* Overlay du formulaire en plein écran */
+.form-fullscreen-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(102, 126, 234, 0.95);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.form-container {
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.inscription-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.inscription-form h3 {
+  color: #333;
+  margin: 0 0 30px 0;
+  font-size: 1.5em;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #333;
+  font-weight: 600;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 15px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 1em;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-group input.error {
+  border-color: #e74c3c;
+}
+
+.error-message {
+  color: #e74c3c;
+  font-size: 0.9em;
+  margin-top: 5px;
+  display: block;
+}
+
+.form-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.submit-button {
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+  color: white;
+  border: none;
+  padding: 18px;
+  border-radius: 12px;
+  font-size: 1.1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.submit-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(76, 175, 80, 0.4);
+}
+
+.cancel-button {
+  background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+  color: white;
+  border: none;
+  padding: 15px;
+  border-radius: 12px;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cancel-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(108, 117, 125, 0.4);
+}
+
+/* Personnalisation de la barre de scroll */
+.formation-container::-webkit-scrollbar {
+  width: 12px;
+}
+
+.formation-container::-webkit-scrollbar-track {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.formation-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  border: 2px solid #667eea;
+}
+
+.formation-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Pour Firefox */
+.formation-container {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) #667eea;
+}
+
+/* Styles pour les images manquantes */
+.no-images {
+  height: 500px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  border-radius: 15px;
+  color: #666;
+  font-size: 1.1em;
+  text-align: center;
+  padding: 20px;
+  border: 2px solid #e9ecef;
+}
+
+/* Responsive */
+@media (max-width: 968px) {
+  .formation-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .formation-content {
+    padding: 20px;
+  }
+  
+  .image-main-container {
+    height: 450px; /* Légèrement réduit sur tablette */
+  }
+  
+  .nav-button {
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .formation-container {
+    padding: 0;
+  }
+  
+  .formation-content {
+    padding: 20px 10px;
+  }
+  
+  .gallery-section, .info-section {
+    padding: 20px;
+  }
+  
+  .formation-title {
+    font-size: 1.8em;
+  }
+  
+  .formation-meta {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .form-container {
+    padding: 30px 20px;
+    margin: 10px;
+  }
+  
+  .image-main-container {
+    height: 400px; /* Adapté pour mobile */
+  }
+  
+  .nav-button {
+    width: 45px;
+    height: 45px;
+    font-size: 22px;
+  }
+  
+  .nav-button.prev {
+    left: 10px;
+  }
+  
+  .nav-button.next {
+    right: 10px;
+  }
+  
+  .thumbnail {
+    width: 70px;
+    height: 50px;
+  }
+  
+  .gallery-image {
+    max-width: 92%;
+    max-height: 92%;
+  }
+}
+
+@media (max-width: 480px) {
+  .formation-title {
+    font-size: 1.5em;
+  }
+  
+  .image-main-container {
+    height: 350px; /* Plus adapté aux petits écrans */
+  }
+  
+  .nav-button {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+  
+  .nav-button.prev {
+    left: 8px;
+  }
+  
+  .nav-button.next {
+    right: 8px;
+  }
+  
+  .thumbnail {
+    width: 60px;
+    height: 45px;
+  }
+  
+  .form-buttons {
+    gap: 10px;
+  }
+  
+  .submit-button, .cancel-button {
+    padding: 15px;
+    font-size: 1em;
+  }
+  
+  .gallery-image {
+    max-width: 90%;
+    max-height: 90%;
+  }
+  
+  .thumbnail-container {
+    min-height: 80px;
+    padding: 12px;
+  }
+}
+
+/* Animation de chargement */
+.loading-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 500px;
+  background: white;
+  border-radius: 20px;
+  color: #666;
+  font-size: 1.2em;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+
+/* Ajoutez ces styles à la fin de votre DescriptionFormation.css */
+
+/* Styles pour le sélecteur de date */
+.form-group select {
+  width: 100%;
+  padding: 15px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 1em;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+  background: white;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23666' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  background-size: 12px;
+}
+
+.form-group select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-group select.error {
+  border-color: #e74c3c;
+}
+
+.form-group select option {
+  padding: 10px;
+  font-size: 1em;
+}
+
+/* Ajustement pour le header du formulaire sans bouton X */
+.form-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 30px;
+  position: relative;
+}
+
+.form-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 1.5em;
+  text-align: center;
+}
+
+
+/* AJOUTEZ CES STYLES À VOTRE DescriptionFormation.css */
+
+/* Styles améliorés pour le sélecteur de date */
+.form-group select {
+  width: 100%;
+  padding: 15px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 1em;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+  background: white;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23666' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  background-size: 12px;
+  font-family: inherit;
+}
+
+.form-group select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23667eea' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+}
+
+.form-group select.error {
+  border-color: #e74c3c;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23e74c3c' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+}
+
+/* Style pour les options du select */
+.form-group select option {
+  padding: 12px 15px;
+  font-size: 1em;
+  border-bottom: 1px solid #f1f3f4;
+  background: white;
+  color: #333;
+}
+
+.form-group select option:hover {
+  background: #667eea;
+  color: white;
+}
+
+.form-group select option:checked {
+  background: #667eea;
+  color: white;
+}
+
+/* Affichage de la date sélectionnée */
+.selected-date-display {
+  margin-top: 10px;
+  padding: 12px 15px;
+  background: #e8f4fd;
+  border: 1px solid #b8daff;
+  border-radius: 8px;
+  color: #004085;
+  font-size: 0.95em;
+  animation: fadeIn 0.3s ease;
+}
+
+.selected-date-display strong {
+  color: #002752;
+  font-weight: 600;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Amélioration du conteneur du select */
+.form-group {
+  position: relative;
+}
+
+/* Style pour quand le select est ouvert */
+.form-group select:active,
+.form-group select:focus {
+  border-color: #667eea;
+}
+
+/* Responsive pour le select */
+@media (max-width: 768px) {
+  .form-group select {
+    padding: 14px;
+    font-size: 16px; /* Évite le zoom sur iOS */
+  }
+  
+  .selected-date-display {
+    padding: 10px 12px;
+    font-size: 0.9em;
+  }
+}

@@ -46,27 +46,33 @@ import './App.css'
 
 
 
-// App.js (Exemple d'utilisation)
+// App.jsx
 import React from 'react';
-import ErreurReservation from './components/ErreurReservation';
+import DescriptionFormation from './components/DescriptionFormation';
+
+// Importez directement les images
+import image1 from './assets/images/Page_Test/image1.jpg';
+import image2 from './assets/images/Page_Test/image2.jpg';
+import image3 from './assets/images/Page_Test/image3.jpg';
+import image4 from './assets/images/Page_Test/image4.jpg';
 
 function App() {
+  const images = [image1, image2, image3, image4];
+
   return (
     <div className="App">
-      <ErreurReservation 
-        nomEvenement="Formation React Avancé"
-        dateEvenement="20 janvier 2024"
-        heureEvenement="09:30"
-        email="marie.dubois@entreprise.com"
-        messageErreur="Le paiement n'a pas pu être traité. Veuillez vérifier vos informations de paiement et réessayer."
-        codeErreur="PAYMENT-402"
+      <DescriptionFormation 
+        titreEvenement="Formation React Avancé - Les Hooks et Au-delà"
+        descriptionEvenement="Plongez au cœur de React avec cette formation intensive qui couvre les hooks avancés, la gestion d'état complexe, les performances et les meilleures pratiques. Vous apprendrez à créer des applications React robustes, maintenables et performantes."
+        heureEvenement="14:00 - 17:00"
+        jourSemaine={1} // Mardi
+        images={images} // Passez directement le tableau d'images
       />
     </div>
   );
 }
 
 export default App;
-
 
 
 
