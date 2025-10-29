@@ -1,0 +1,309 @@
+/* ErreurReservation.css */
+.erreur-container {
+  min-height: 100vh;
+  min-width: 100vw;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow-y: auto;
+}
+
+.erreur-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 40px 20px;
+  box-sizing: border-box;
+}
+
+.erreur-card {
+  background: white;
+  border-radius: 20px;
+  padding: 50px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+  max-width: 700px;
+  width: 100%;
+  text-align: center;
+  margin: auto;
+}
+
+.erreur-header {
+  margin-bottom: 40px;
+}
+
+.error-icon {
+  width: 100px;
+  height: 100px;
+  background: #e74c3c;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 50px;
+  margin: 0 auto 25px;
+  animation: shake 0.6s;
+}
+
+@keyframes shake {
+  0%, 20%, 60%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50% {
+    transform: translateX(-5px);
+  }
+  40%, 80% {
+    transform: translateX(5px);
+  }
+}
+
+.erreur-header h1 {
+  color: #333;
+  margin: 0 0 15px 0;
+  font-size: 2.5em;
+  font-weight: 700;
+}
+
+.subtitle {
+  color: #666;
+  font-size: 1.2em;
+  margin: 0;
+}
+
+.erreur-details {
+  text-align: left;
+  margin-bottom: 40px;
+}
+
+.error-message-section {
+  margin-bottom: 30px;
+}
+
+.error-alert {
+  background: linear-gradient(135deg, #ffeaea 0%, #ffd1d1 100%);
+  border: 2px solid #e74c3c;
+  border-radius: 15px;
+  padding: 25px;
+  color: #c0392b;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+.error-alert h3 {
+  margin: 0 0 15px 0;
+  color: #c0392b;
+  font-size: 1.4em;
+  font-weight: 600;
+}
+
+.error-text {
+  margin: 0 0 15px 0;
+  line-height: 1.6;
+  font-size: 1.1em;
+  font-weight: 500;
+}
+
+.error-code {
+  background: rgba(231, 76, 60, 0.1);
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-size: 0.9em;
+  border-left: 3px solid #e74c3c;
+  text-align: center;
+}
+
+.error-code span {
+  font-family: monospace;
+  font-weight: 700;
+  color: #a93226;
+  font-size: 1.1em;
+}
+
+.support-section {
+  margin-top: 30px;
+}
+
+.info-box {
+  background: linear-gradient(135deg, #e8f4fd 0%, #d1ecf1 100%);
+  border: 2px solid #3498db;
+  border-radius: 15px;
+  padding: 25px;
+  color: #004085;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+.info-box h3 {
+  margin: 0 0 20px 0;
+  color: #004085;
+  font-size: 1.4em;
+  font-weight: 600;
+  text-align: center;
+}
+
+.info-box p {
+  margin: 0 0 20px 0;
+  line-height: 1.6;
+  font-size: 1.1em;
+  text-align: center;
+}
+
+.contact-info {
+  margin: 25px 0;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 8px;
+  border-left: 4px solid #3498db;
+}
+
+.contact-item:last-child {
+  margin-bottom: 0;
+}
+
+.contact-icon {
+  font-size: 1.5em;
+  margin-right: 15px;
+  min-width: 40px;
+  text-align: center;
+}
+
+.contact-details {
+  flex: 1;
+  font-size: 1.1em;
+}
+
+.contact-details strong {
+  color: #002752;
+  margin-right: 8px;
+}
+
+.note {
+  font-size: 1em;
+  color: #666;
+  margin-top: 20px !important;
+  padding-top: 20px;
+  border-top: 2px solid #b8daff;
+  font-style: italic;
+  text-align: center;
+}
+
+.erreur-footer {
+  border-top: 2px solid #f1f3f4;
+  padding-top: 25px;
+  background: #fafbfc;
+  margin: 0 -50px -50px -50px;
+  padding: 30px 50px;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+  text-align: center;
+}
+
+.erreur-footer p {
+  color: #666;
+  font-size: 1em;
+  margin: 0;
+  font-style: italic;
+}
+
+/* Personnalisation de la barre de scroll */
+.erreur-container::-webkit-scrollbar {
+  width: 12px;
+}
+
+.erreur-container::-webkit-scrollbar-track {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+}
+
+.erreur-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  border: 2px solid #ff6b6b;
+}
+
+.erreur-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Pour Firefox */
+.erreur-container {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) #ff6b6b;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .erreur-content {
+    padding: 20px 10px;
+  }
+  
+  .erreur-card {
+    padding: 30px 20px;
+    width: 95%;
+  }
+  
+  .erreur-header h1 {
+    font-size: 2em;
+  }
+  
+  .error-icon {
+    width: 80px;
+    height: 80px;
+    font-size: 40px;
+  }
+  
+  .erreur-footer {
+    margin: 0 -20px -30px -20px;
+    padding: 20px;
+  }
+  
+  .contact-item {
+    flex-direction: column;
+    text-align: center;
+    gap: 8px;
+  }
+  
+  .contact-icon {
+    margin-right: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .erreur-content {
+    padding: 10px 5px;
+  }
+  
+  .erreur-card {
+    padding: 25px 15px;
+  }
+  
+  .erreur-header h1 {
+    font-size: 1.7em;
+  }
+  
+  .subtitle {
+    font-size: 1.1em;
+  }
+  
+  .info-box {
+    padding: 20px 15px;
+  }
+  
+  .error-alert {
+    padding: 20px 15px;
+  }
+  
+  .contact-details {
+    font-size: 1em;
+  }
+}
