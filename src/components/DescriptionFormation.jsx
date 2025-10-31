@@ -7,7 +7,11 @@ const DescriptionFormation = ({
   descriptionEvenement = "Cette formation vous permettra de maîtriser les concepts avancés de React, incluant les hooks personnalisés, le contexte avancé, les performances et les bonnes pratiques de développement.",
   heureEvenement = "14:00 - 17:00",
   jourSemaine = 1, // 0=lundi, 6=dimanche
-  images = [] // Tableau d'images importées
+  images = [], // Tableau d'images importées
+  onRetour = () => {
+    // Fonction par défaut qui utilise l'historique du navigateur
+    window.history.back();
+  }
 }) => {
   const [imageIndex, setImageIndex] = useState(0);
   const [showForm, setShowForm] = useState(false);
@@ -153,7 +157,10 @@ const DescriptionFormation = ({
   };
 
   const handleBack = () => {
-    window.history.back();
+    // Utilise la fonction onRetour passée en props
+    if (onRetour) {
+      onRetour();
+    }
   };
 
   const closeForm = () => {
@@ -171,8 +178,9 @@ const DescriptionFormation = ({
   return (
     <div className="formation-container">
       <div className="formation-content">
+        {/* BOUTON MODIFIÉ POUR RETOURNER À L'ACCUEIL */}
         <button className="back-button" onClick={handleBack}>
-          ← Retour à la page précédente
+          ← Retour aux formations
         </button>
 
         <div className="formation-grid">
