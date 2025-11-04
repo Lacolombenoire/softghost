@@ -1,5 +1,5 @@
-// formationController.js
-const pool = require('./db');
+// Backend/formationController.js
+import pool from './db.js';
 
 // Obtenir toutes les formations
 async function obtenirToutesFormations() {
@@ -101,3 +101,13 @@ async function obtenirPremiereImageFormation(idFormation) {
     throw error;
   }
 }
+
+export default {
+  obtenirToutesFormations,
+  obtenirFormationParId,
+  creerFormation,
+  mettreAJourFormation,
+  ajouterImageFormation,
+  supprimerImageFormation,
+  obtenirPremiereImageFormation
+};

@@ -1,9 +1,8 @@
-// routes/formations.js
-const express = require('express');
+// Backend/routes/formations.js
+import express from 'express';
+import formationController from '../formationController.js';
+
 const router = express.Router();
-const formationController = require('../controllers/formationController');
-const formationInstanceController = require('../controllers/formationInstanceController');
-const reservationController = require('../controllers/reservationController');
 
 // Routes pour les formations
 router.get('/formations', async (req, res) => {
@@ -26,6 +25,8 @@ router.get('/formations/:id', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+
 
 // Routes pour les instances
 router.get('/instances', async (req, res) => {
@@ -73,4 +74,4 @@ router.get('/formations-disponibles', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;
