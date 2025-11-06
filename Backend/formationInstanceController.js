@@ -1,5 +1,5 @@
 // formationInstanceController.js
-const pool = require('./db');
+import pool from './db.js';
 
 // Obtenir toutes les instances détaillées
 async function obtenirInstancesDetaillees() {
@@ -61,3 +61,15 @@ async function obtenirInstancesFiltrees(idFormation = null, dateDebut = null, da
     throw error;
   }
 }
+
+
+export default {
+  obtenirInstancesDetaillees,
+  obtenirInstanceParId,
+  obtenirInstancesFiltrees,
+  obtenirInstancesAvecReservations,
+  creerInstanceFormation
+
+
+
+};

@@ -759,3 +759,23 @@
     font-size: 0.9em;
   }
 }
+
+
+.selected-date-display {
+  margin-top: 10px;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #4CAF50;
+  font-size: 0.9em;
+}
+
+.warning-message {
+  margin-top: 10px;
+  padding: 10px;
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 8px;
+  color: #856404;
+  font-size: 0.9em;
+}

@@ -1,6 +1,9 @@
 // Backend/routes/formations.js
 import express from 'express';
 import formationController from '../formationController.js';
+import formationInstanceController from '../formationInstanceController.js';
+import reservationController from '../reservationController.js';
+import pool from '../db.js'; // ✅ AJOUT: Import du pool
 
 const router = express.Router();
 
@@ -26,8 +29,6 @@ router.get('/formations/:id', async (req, res) => {
   }
 });
 
-
-
 // Routes pour les instances
 router.get('/instances', async (req, res) => {
   try {
@@ -50,7 +51,21 @@ router.get('/instances/:id', async (req, res) => {
   }
 });
 
-// Route pour les inscriptions
+// ✅ CORRIGÉ: Une seule route pour les formations disponibles
+router.get('/formations-disponibles', async (req, res) => {
+  try {
+    const { formation } = req.query;
+    console.log('🔍 Recherche instances pour formation:', formation);
+    
+    const instances = await reservationController.listerFormationsDisponibles(formation);
+    res.json(instances);
+  } catch (error) {
+    console.error('❌ Erreur récupération instances:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ✅ CORRIGÉ: Une seule route pour les réservations
 router.post('/reservations', async (req, res) => {
   try {
     const idReservation = await reservationController.inscrireFormation(req.body);
@@ -64,14 +79,6 @@ router.post('/reservations', async (req, res) => {
   }
 });
 
-// Route pour les formations disponibles
-router.get('/formations-disponibles', async (req, res) => {
-  try {
-    const formations = await reservationController.listerFormationsDisponibles();
-    res.json(formations);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+// ❌ SUPPRIMER: Les routes dupliquées en bas du fichier
 
 export default router;

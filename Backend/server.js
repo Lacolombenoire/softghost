@@ -5,6 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import formationRoutes from './routes/formations.js';
 
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -17,6 +18,7 @@ app.use('/images', express.static(path.join(__dirname, '../src/assets/images')))
 
 // Routes
 app.use('/api', formationRoutes);
+
 
 app.listen(PORT, () => {
   console.log(`Serveur démarré sur le port ${PORT}`);
