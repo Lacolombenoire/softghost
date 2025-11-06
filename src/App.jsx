@@ -2,11 +2,14 @@
 import React, { useState, useEffect } from 'react';
 import AccueilFormations from './components/AccueilFormations';
 import DescriptionFormation from './components/DescriptionFormation';
+import ConfirmationReservation from './components/ConfirmationReservation';
+import ErreurReservation from './components/ErreurReservation';
 import './App.css';
 
 function App() {
-  const [currentPage, setCurrentPage] = useState('accueil'); // 'accueil' ou 'description'
+  const [currentPage, setCurrentPage] = useState('accueil'); // 'accueil', 'description', 'confirmation', 'erreur'
   const [selectedFormation, setSelectedFormation] = useState(null);
+  const [reservationData, setReservationData] = useState(null);
   const [formations, setFormations] = useState({});
 
   useEffect(() => {
@@ -22,7 +25,6 @@ function App() {
         const data = await response.json();
         console.log('✅ Données brutes reçues:', data);
         
-        // Transformer le tableau en objet avec le format attendu par AccueilFormations
         const formationsFormatees = {};
         data.forEach(formation => {
           formationsFormatees[formation.id_formation] = {
@@ -35,12 +37,10 @@ function App() {
           };
         });
         
-        console.log('📊 Formations formatées:', formationsFormatees);
         setFormations(formationsFormatees);
         
       } catch (error) {
         console.error('❌ Erreur chargement formations:', error);
-        // En cas d'erreur, utiliser des données de test
         setFormations({
           "formation-test": {
             titre: "Formation Test",
@@ -63,12 +63,33 @@ function App() {
     setCurrentPage('description');
   };
 
+  const handleReservationSuccess = (reservationInfo) => {
+    setReservationData(reservationInfo);
+    setCurrentPage('confirmation');
+  };
+
+  const handleReservationError = (errorInfo) => {
+    setReservationData(errorInfo);
+    setCurrentPage('erreur');
+  };
+
   const handleRetourAccueil = () => {
     setCurrentPage('accueil');
     setSelectedFormation(null);
+    setReservationData(null);
   };
 
-  // Afficher la page de description si une formation est sélectionnée
+  // Afficher la page de confirmation
+  if (currentPage === 'confirmation') {
+    return <ConfirmationReservation onRetourAccueil={handleRetourAccueil} />;
+  }
+
+  // Afficher la page d'erreur
+  if (currentPage === 'erreur') {
+    return <ErreurReservation onRetourAccueil={handleRetourAccueil} />;
+  }
+
+  // Afficher la page de description
   if (currentPage === 'description' && selectedFormation && formations[selectedFormation]) {
     const formation = formations[selectedFormation];
     return (
@@ -78,8 +99,10 @@ function App() {
         heureEvenement={`${formation.heure_debut?.substring(0, 5)} - ${formation.heure_fin?.substring(0, 5)}`}
         jourSemaine={formation.jour_semaine}
         images={formation.images}
-        formationId={selectedFormation} // ✅ AJOUT: Passer l'ID de la formation
+        formationId={selectedFormation}
         onRetour={handleRetourAccueil}
+        onReservationSuccess={handleReservationSuccess}
+        onReservationError={handleReservationError}
       />
     );
   }

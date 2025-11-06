@@ -1,8 +1,17 @@
-// ErreurReservation.js
+// ErreurReservation.jsx
 import React from 'react';
 import './ErreurReservation.css';
 
-const ErreurReservation = () => {
+const ErreurReservation = ({ 
+  errorData = {},
+  onRetourAccueil = () => {}
+}) => {
+  const {
+    message = 'Une erreur technique est survenue',
+    formation = 'Formation non spécifiée',
+    date = 'Date non spécifiée'
+  } = errorData;
+
   return (
     <div className="erreur-container">
       <div className="erreur-content">
@@ -16,11 +25,12 @@ const ErreurReservation = () => {
           <div className="erreur-details">
             <div className="error-message-section">
               <div className="error-alert">
-                <h3>Une erreur technique est survenue</h3>
-                <p className="error-text">
-                  Votre réservation n'a pas pu être finalisée en raison d'un problème technique.
-                  Veuillez réessayer ultérieurement ou contacter notre support technique.
-                </p>
+                <h3>Détails de l'erreur</h3>
+                <p className="error-text">{message}</p>
+                <div className="reservation-context">
+                  <p><strong>Formation :</strong> {formation}</p>
+                  <p><strong>Date sélectionnée :</strong> {date}</p>
+                </div>
                 <div className="error-code">
                   Référence : <span>ERR-{Math.random().toString(36).substr(2, 8).toUpperCase()}</span>
                 </div>
@@ -61,6 +71,9 @@ const ErreurReservation = () => {
           </div>
           
           <div className="erreur-footer">
+            <button className="return-button" onClick={onRetourAccueil}>
+              ← Retour à l'accueil
+            </button>
             <p>Nous nous excusons pour la gêne occasionnée.</p>
           </div>
         </div>

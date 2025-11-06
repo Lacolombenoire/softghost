@@ -8,10 +8,12 @@ const DescriptionFormation = ({
   heureEvenement = "14:00 - 17:00",
   jourSemaine = 1,
   images = [],
-  formationId, // ✅ AJOUT: ID de la formation pour récupérer les instances
+  formationId,
   onRetour = () => {
     window.history.back();
-  }
+  },
+  onReservationSuccess = null, // ✅ NOUVEAU: Callback pour succès
+  onReservationError = null    // ✅ NOUVEAU: Callback pour erreur
 }) => {
   const [imageIndex, setImageIndex] = useState(0);
   const [showForm, setShowForm] = useState(false);
@@ -149,103 +151,103 @@ const formatDatePourSelect = (dateString) => {
     }
   };
 
-  // ✅ MODIFIÉ: Soumission avec envoi à l'API
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const newErrors = {};
+  // DescriptionFormation.jsx - MODIFICATIONS DANS LA FONCTION handleSubmit
 
-    // Validation
-    if (!formData.nom.trim()) {
-      newErrors.nom = 'Le nom est requis';
-    } else if (!validateName(formData.nom)) {
-      newErrors.nom = 'Le nom ne doit contenir que des lettres et des traits d\'union';
+// ✅ MODIFIÉ: Soumission avec redirection
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  const newErrors = {};
+
+  // Validation
+  if (!formData.nom.trim()) {
+    newErrors.nom = 'Le nom est requis';
+  } else if (!validateName(formData.nom)) {
+    newErrors.nom = 'Le nom ne doit contenir que des lettres et des traits d\'union';
+  }
+
+  if (!formData.prenom.trim()) {
+    newErrors.prenom = 'Le prénom est requis';
+  } else if (!validateName(formData.prenom)) {
+    newErrors.prenom = 'Le prénom ne doit contenir que des lettres et des traits d\'union';
+  }
+
+  if (!formData.email.trim()) {
+    newErrors.email = 'L\'email est requis';
+  } else if (!validateEmail(formData.email)) {
+    newErrors.email = 'Format d\'email invalide';
+  }
+
+  if (!formData.dateSelectionnee) {
+    newErrors.dateSelectionnee = 'Veuillez sélectionner une date';
+  }
+
+  if (formData.telephone && !validatePhone(formData.telephone)) {
+    newErrors.telephone = 'Format de téléphone invalide';
+  }
+
+  if (Object.keys(newErrors).length > 0) {
+    setErrors(newErrors);
+    return;
+  }
+
+  try {
+    // Trouver l'instance sélectionnée
+    const instanceSelectionnee = instancesDisponibles.find(
+      instance => formatDatePourSelect(instance.date) === formData.dateSelectionnee
+    );
+
+    if (!instanceSelectionnee) {
+      throw new Error('Instance non trouvée');
     }
 
-    if (!formData.prenom.trim()) {
-      newErrors.prenom = 'Le prénom est requis';
-    } else if (!validateName(formData.prenom)) {
-      newErrors.prenom = 'Le prénom ne doit contenir que des lettres et des traits d\'union';
+    // Envoyer la réservation à l'API
+    const response = await fetch('http://localhost:3000/api/reservations', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        prenom: formData.prenom,
+        nom: formData.nom,
+        courriel: formData.email,
+        telephone: formData.telephone,
+        id_formation_instance: instanceSelectionnee.id_instance
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Erreur lors de la réservation');
     }
 
-    if (!formData.email.trim()) {
-      newErrors.email = 'L\'email est requis';
-    } else if (!validateEmail(formData.email)) {
-      newErrors.email = 'Format d\'email invalide';
-    }
-
-    if (!formData.dateSelectionnee) {
-      newErrors.dateSelectionnee = 'Veuillez sélectionner une date';
-    }
-
-    if (formData.telephone && !validatePhone(formData.telephone)) {
-      newErrors.telephone = 'Format de téléphone invalide';
-    }
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
-    try {
-      // Trouver l'instance sélectionnée
-      const instanceSelectionnee = instancesDisponibles.find(
-        instance => instance.date === formData.dateSelectionnee
-      );
-
-      if (!instanceSelectionnee) {
-        alert('Erreur: instance non trouvée');
-        return;
-      }
-
-      // Envoyer la réservation à l'API
-      const response = await fetch('http://localhost:3000/api/reservations', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          prenom: formData.prenom,
-          nom: formData.nom,
-          courriel: formData.email,
-          telephone: formData.telephone,
-          id_formation_instance: instanceSelectionnee.id_instance
-        })
+    const result = await response.json();
+    
+    // ✅ SUCCÈS: Rediriger vers la page de confirmation
+    if (onReservationSuccess) {
+      const dateFormatee = formatDateAffichage(formData.dateSelectionnee + 'T00:00:00');
+      onReservationSuccess({
+        id_reservation: result.id_reservation,
+        date: dateFormatee,
+        formation: titreEvenement,
+        prenom: formData.prenom,
+        nom: formData.nom,
+        email: formData.email
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Erreur lors de la réservation');
-      }
-
-      const result = await response.json();
-      
-      // Succès
-      const dateFormatee = formatDateAffichage(formData.dateSelectionnee);
-      alert(`Inscription réussie pour le ${dateFormatee} ! Un email de confirmation vous a été envoyé.`);
-      
-      // Réinitialiser le formulaire
-      setFormData({ 
-        nom: '', 
-        prenom: '', 
-        email: '', 
-        telephone: '', 
-        dateSelectionnee: '' 
-      });
-      setShowForm(false);
-      setErrors({});
-
-      // Recharger les instances pour mettre à jour les places
-      const refreshResponse = await fetch(`http://localhost:3000/api/formations-disponibles?formation=${formationId}`);
-      if (refreshResponse.ok) {
-        const newInstances = await refreshResponse.json();
-        setInstancesDisponibles(newInstances);
-      }
-
-    } catch (error) {
-      console.error('Erreur réservation:', error);
-      alert(`Erreur lors de l'inscription: ${error.message}`);
     }
-  };
+
+  } catch (error) {
+    console.error('Erreur réservation:', error);
+    
+    // ✅ ERREUR: Rediriger vers la page d'erreur
+    if (onReservationError) {
+      onReservationError({
+        message: error.message,
+        formation: titreEvenement,
+        date: formData.dateSelectionnee
+      });
+    }
+  }
+};
 
   const handleBack = () => {
     if (onRetour) {

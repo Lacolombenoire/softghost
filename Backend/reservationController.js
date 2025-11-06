@@ -83,18 +83,19 @@ async function inscrireFormation(reservationData) {
     // Commencer une transaction
     await pool.query('BEGIN');
 
-    // 1. Créer la réservation
-    const idReservation = 'reservation' + Date.now();
-    
+    // 1. Créer la réservation - NE PAS fournir l'ID, laisser les triggers le générer
     const insertReservationQuery = `
-      INSERT INTO reservation (id_reservation, prenom, nom, courriel, telephone)
-      VALUES ($1, $2, $3, $4, $5)
+      INSERT INTO reservation (prenom, nom, courriel, telephone)
+      VALUES ($1, $2, $3, $4)
       RETURNING id_reservation
     `;
     
     const reservationResult = await pool.query(insertReservationQuery, [
-      idReservation, prenom, nom, courriel, telephone || null
+      prenom, nom, courriel, telephone || null
     ]);
+
+    const idReservation = reservationResult.rows[0].id_reservation;
+    console.log('✅ ID de réservation généré:', idReservation);
 
     // 2. Lier la réservation à l'instance
     const insertTableReservationQuery = `
@@ -112,7 +113,7 @@ async function inscrireFormation(reservationData) {
   } catch (error) {
     // Annuler la transaction en cas d'erreur
     await pool.query('ROLLBACK');
-    console.error('Erreur lors de l\'inscription:', error);
+    console.error('❌ Erreur lors de l\'inscription:', error);
     throw error;
   }
 }
