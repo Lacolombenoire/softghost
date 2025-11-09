@@ -81,4 +81,57 @@ router.post('/reservations', async (req, res) => {
 
 // ❌ SUPPRIMER: Les routes dupliquées en bas du fichier
 
+
+
+// Route pour récupérer les statistiques admin
+router.get('/admin/statistiques', async (req, res) => {
+  try {
+    const query = `
+      SELECT 
+        f.id_formation,
+        f.nom,
+        fi.id_formation_instance,
+        fi.jour as date_instance,
+        f.heure_debut,
+        f.heure_fin,
+        COALESCE(tr.reservation_count, 0) as inscrits,
+        (30 - COALESCE(tr.reservation_count, 0)) as places_restantes,
+        (COALESCE(tr.reservation_count, 0) >= 30) as complet
+      FROM formation f
+      JOIN formation_instance fi ON f.id_formation = fi.id_reference_formation
+      LEFT JOIN (
+        SELECT id_formation_instance, COUNT(*) as reservation_count
+        FROM table_reservation 
+        GROUP BY id_formation_instance
+      ) tr ON fi.id_formation_instance = tr.id_formation_instance
+      WHERE fi.jour >= CURRENT_DATE
+        AND fi.jour <= CURRENT_DATE + INTERVAL '1 month'
+      ORDER BY fi.jour, f.heure_debut
+    `;
+    
+    console.log('📊 Exécution de la requête admin...');
+    const result = await pool.query(query);
+    console.log('✅ Données récupérées:', result.rows.length, 'sessions');
+    
+    const formations = result.rows.map(row => ({
+      id: row.id_formation_instance,
+      id_formation: row.id_formation,  // Inclure l'ID de la formation
+      nom: row.nom,
+      date: row.date_instance,
+      heureDebut: row.heure_debut?.substring(0, 5),
+      heureFin: row.heure_fin?.substring(0, 5),
+      inscrits: parseInt(row.inscrits),
+      places_restantes: parseInt(row.places_restantes),
+      complet: row.complet
+    }));
+    
+    console.log('📋 Première formation:', formations[0]);
+    res.json(formations);
+  } catch (error) {
+    console.error('❌ Erreur récupération statistiques admin:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
 export default router;

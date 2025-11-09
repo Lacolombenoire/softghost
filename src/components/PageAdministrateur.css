@@ -410,3 +410,130 @@
     font-size: 1.2em;
   }
 }
+
+
+.login-error {
+  background: #fee;
+  border: 1px solid #fcc;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 15px 0;
+  color: #c33;
+  font-size: 0.9em;
+  text-align: center;
+}
+
+.loading-admin {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
+  font-size: 1.2em;
+  color: #666;
+}
+
+/* Styles pour les nouveaux filtres */
+.filtre-groupe {
+  margin-bottom: 20px;
+}
+
+.filtre-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: white; /* ✅ CHANGEMENT: Blanc pour être visible sur fond sombre */
+  font-size: 1em;
+}
+
+.filtre-select {
+  padding: 10px 15px;
+  border: 2px solid rgba(255, 255, 255, 0.3); /* ✅ CHANGEMENT: Bordure visible */
+  border-radius: 8px;
+  font-size: 1em;
+  background: rgba(255, 255, 255, 0.1); /* ✅ CHANGEMENT: Fond semi-transparent */
+  color: white; /* ✅ CHANGEMENT: Texte blanc */
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 250px;
+  backdrop-filter: blur(10px);
+}
+
+.filtre-select:focus {
+  outline: none;
+  border-color: #3498db; /* ✅ CHANGEMENT: Bleu pour le focus */
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.3);
+}
+
+/* ✅ AJOUT: Styles pour les options du select */
+.filtre-select option {
+  background: #2c3e50; /* Fond sombre pour les options */
+  color: white; /* Texte blanc pour les options */
+  padding: 10px;
+}
+
+.filtres-resume {
+  margin-top: 15px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.1); /* ✅ CHANGEMENT: Fond semi-transparent */
+  border-radius: 8px;
+  border-left: 4px solid #3498db; /* ✅ CHANGEMENT: Bleu pour correspondre au thème */
+  backdrop-filter: blur(10px);
+}
+
+.filtres-resume p {
+  margin: 0;
+  color: white; /* ✅ CHANGEMENT: Texte blanc */
+  font-size: 0.95em;
+}
+
+.formation-id {
+  font-family: 'Courier New', monospace;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.reset-filtres-btn {
+  background: rgba(108, 117, 125, 0.8);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9em;
+  margin-top: 10px;
+  transition: background 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.reset-filtres-btn:hover {
+  background: rgba(90, 98, 104, 0.9);
+}
+
+/* ✅ AJOUT: Style pour le placeholder du select */
+.filtre-select::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* ✅ AJOUT: Style pour les options au survol */
+.filtre-select option:hover {
+  background: #3498db;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .filtre-select {
+    min-width: 100%;
+  }
+  
+  .filtres-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .filtre-btn {
+    width: 100%;
+  }
+}

@@ -1,55 +1,74 @@
 // PageAdministrateur.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './PageAdministrateur.css';
 
 const PageAdministrateur = ({
-  formations = [
-    {
-      id: "formation-1",
-      nom: "Formation React Avancé",
-      date: "2024-02-15",
-      heureDebut: "14:00",
-      inscrits: 28
-    },
-    {
-      id: "formation-2", 
-      nom: "Formation JavaScript Moderne",
-      date: "2024-02-20",
-      heureDebut: "10:00",
-      inscrits: 15
-    },
-    {
-      id: "formation-3",
-      nom: "Formation Node.js & Express",
-      date: "2024-02-10",
-      heureDebut: "09:00",
-      inscrits: 30
-    },
-    {
-      id: "formation-4",
-      nom: "Formation TypeScript",
-      date: "2024-02-25",
-      heureDebut: "16:00",
-      inscrits: 22
-    }
-  ],
   onRetourAccueil = () => {
     console.log('Retour à l\'accueil');
   }
 }) => {
-  const [filtre, setFiltre] = useState('toutes'); // 'toutes', 'disponibles', 'pleines'
+  const [filtreStatut, setFiltreStatut] = useState('toutes'); // 'toutes', 'disponibles', 'pleines'
+  const [filtreFormation, setFiltreFormation] = useState('toutes'); // 'toutes' ou id_formation spécifique
+  const [formations, setFormations] = useState([]);
+  const [typesFormation, setTypesFormation] = useState([]); // ✅ AJOUT: Liste des types de formation
+  const [loading, setLoading] = useState(true);
 
-  // Trier les formations par date (du plus récent au plus tard)
+  // Récupérer les vraies données depuis l'API
+  useEffect(() => {
+    const fetchFormationsAdmin = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('http://localhost:3000/api/admin/statistiques');
+        
+        if (!response.ok) {
+          throw new Error('Erreur lors du chargement des données');
+        }
+        
+        const data = await response.json();
+        console.log('📊 Données admin:', data);
+        setFormations(data);
+        
+        // ✅ AJOUT: Extraire les types de formation uniques
+        const typesUniques = [...new Set(data.map(item => ({
+          id: item.id_formation,
+          nom: item.nom
+        })))].filter(item => item.id && item.nom);
+        
+        setTypesFormation(typesUniques);
+        console.log('🎯 Types de formation:', typesUniques);
+        
+      } catch (error) {
+        console.error('Erreur chargement données admin:', error);
+        setFormations([]);
+        setTypesFormation([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFormationsAdmin();
+  }, []);
+
+  // Trier les formations par date
   const formationsTriees = [...formations].sort((a, b) => new Date(a.date) - new Date(b.date));
 
-  // Filtrer les formations selon le filtre sélectionné
+  // ✅ MODIFIÉ: Filtrer les formations selon les filtres sélectionnés
   const formationsFiltrees = formationsTriees.filter(formation => {
-    if (filtre === 'pleines') {
-      return formation.inscrits >= 30;
-    } else if (filtre === 'disponibles') {
-      return formation.inscrits < 30;
+    // Filtre par statut (pleines/disponibles)
+    let filtreStatutOk = true;
+    if (filtreStatut === 'pleines') {
+      filtreStatutOk = formation.inscrits >= 30;
+    } else if (filtreStatut === 'disponibles') {
+      filtreStatutOk = formation.inscrits < 30;
     }
-    return true; // 'toutes'
+
+    // ✅ AJOUT: Filtre par type de formation
+    let filtreTypeOk = true;
+    if (filtreFormation !== 'toutes') {
+      filtreTypeOk = formation.id_formation === filtreFormation;
+    }
+
+    return filtreStatutOk && filtreTypeOk;
   });
 
   const formatDate = (dateStr) => {
@@ -76,6 +95,16 @@ const PageAdministrateur = ({
     return Math.min((inscrits / 30) * 100, 100);
   };
 
+  if (loading) {
+    return (
+      <div className="admin-container">
+        <div className="loading-admin">
+          <p>Chargement des données administrateur...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="admin-container">
       <div className="admin-content">
@@ -92,13 +121,13 @@ const PageAdministrateur = ({
           <div className="admin-stats">
             <div className="stat-card">
               <div className="stat-number">{formations.length}</div>
-              <div className="stat-label">Formations totales</div>
+              <div className="stat-label">Sessions ce mois</div>
             </div>
             <div className="stat-card">
               <div className="stat-number">
                 {formations.filter(f => f.inscrits >= 30).length}
               </div>
-              <div className="stat-label">Formations pleines</div>
+              <div className="stat-label">Sessions pleines</div>
             </div>
             <div className="stat-card">
               <div className="stat-number">
@@ -111,36 +140,83 @@ const PageAdministrateur = ({
 
         {/* Filtres */}
         <div className="filtres-section">
-          <h2>Filtrer les formations</h2>
-          <div className="filtres-buttons">
-            <button 
-              className={`filtre-btn ${filtre === 'toutes' ? 'active' : ''}`}
-              onClick={() => setFiltre('toutes')}
+          <h2>Filtrer les sessions</h2>
+          
+          {/* ✅ AJOUT: Filtre par type de formation */}
+          <div className="filtre-groupe">
+            <label htmlFor="filtre-formation" className="filtre-label">
+              📚 Type de formation :
+            </label>
+            <select
+              id="filtre-formation"
+              value={filtreFormation}
+              onChange={(e) => setFiltreFormation(e.target.value)}
+              className="filtre-select"
             >
-              Toutes les formations
-            </button>
-            <button 
-              className={`filtre-btn ${filtre === 'disponibles' ? 'active' : ''}`}
-              onClick={() => setFiltre('disponibles')}
-            >
-              Places disponibles
-            </button>
-            <button 
-              className={`filtre-btn ${filtre === 'pleines' ? 'active' : ''}`}
-              onClick={() => setFiltre('pleines')}
-            >
-              Formations pleines
-            </button>
+              <option value="toutes">Tous les logiciels</option>
+              {typesFormation.map((type) => (
+                <option key={type.id} value={type.id}>
+                  {type.nom}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Filtre par statut */}
+          <div className="filtre-groupe">
+            <label className="filtre-label">📊 Statut :</label>
+            <div className="filtres-buttons">
+              <button 
+                className={`filtre-btn ${filtreStatut === 'toutes' ? 'active' : ''}`}
+                onClick={() => setFiltreStatut('toutes')}
+              >
+                Toutes les sessions
+              </button>
+              <button 
+                className={`filtre-btn ${filtreStatut === 'disponibles' ? 'active' : ''}`}
+                onClick={() => setFiltreStatut('disponibles')}
+              >
+                Places disponibles
+              </button>
+              <button 
+                className={`filtre-btn ${filtreStatut === 'pleines' ? 'active' : ''}`}
+                onClick={() => setFiltreStatut('pleines')}
+              >
+                Sessions pleines
+              </button>
+            </div>
+          </div>
+
+          {/* ✅ AJOUT: Résumé des filtres */}
+          <div className="filtres-resume">
+            <p>
+              Affichage de <strong>{formationsFiltrees.length}</strong> session(s) 
+              {filtreFormation !== 'toutes' && 
+                ` pour "${typesFormation.find(t => t.id === filtreFormation)?.nom || filtreFormation}"`
+              }
+              {filtreStatut !== 'toutes' && 
+                ` (${filtreStatut === 'pleines' ? 'pleines' : 'avec places disponibles'})`
+              }
+            </p>
           </div>
         </div>
 
         {/* Liste des formations */}
         <main className="admin-main">
-          <h2>Liste des formations</h2>
+          <h2>Sessions du mois prochain</h2>
           
           {formationsFiltrees.length === 0 ? (
             <div className="no-formations">
-              <p>Aucune formation ne correspond aux critères sélectionnés.</p>
+              <p>Aucune session ne correspond aux critères sélectionnés.</p>
+              <button 
+                className="reset-filtres-btn"
+                onClick={() => {
+                  setFiltreStatut('toutes');
+                  setFiltreFormation('toutes');
+                }}
+              >
+                Réinitialiser les filtres
+              </button>
             </div>
           ) : (
             <div className="formations-list">
@@ -164,13 +240,17 @@ const PageAdministrateur = ({
                       </div>
                       <div className="detail-item">
                         <span className="detail-label">⏰ Heure :</span>
-                        <span className="detail-value">{formation.heureDebut}</span>
+                        <span className="detail-value">{formation.heureDebut} - {formation.heureFin}</span>
                       </div>
                       <div className="detail-item">
                         <span className="detail-label">👥 Inscrits :</span>
                         <span className="detail-value">
                           {formation.inscrits} / 30 personnes
                         </span>
+                      </div>
+                      <div className="detail-item">
+                        <span className="detail-label">🆔 ID Formation :</span>
+                        <span className="detail-value formation-id">{formation.id_formation}</span>
                       </div>
                     </div>
 

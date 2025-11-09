@@ -19,6 +19,9 @@ const AccueilFormations = ({
   },
   onFormationSelect = (formationId) => {
     console.log('Formation sélectionnée:', formationId);
+  },
+  onAdminLogin = () => {
+    console.log('Connexion admin réussie');
   }
 }) => {
   const [showAdminLogin, setShowAdminLogin] = useState(false);
@@ -26,6 +29,7 @@ const AccueilFormations = ({
     username: '',
     password: ''
   });
+  const [loginError, setLoginError] = useState('');
 
   const handleFormationClick = (formationId) => {
     if (onFormationSelect) {
@@ -33,16 +37,22 @@ const AccueilFormations = ({
     }
   };
 
-  const handleAdminLogin = (e) => {
+  const handleAdminLogin = async (e) => {
     e.preventDefault();
-    // Simulation de connexion admin
-    console.log('Tentative de connexion admin:', adminCredentials);
-    if (adminCredentials.username && adminCredentials.password) {
-      alert('Connexion administrateur réussie !');
+    setLoginError('');
+    
+    // Vérification des identifiants
+    if (adminCredentials.username === 'tessiern782@gmail.com' && adminCredentials.password === 'Password1') {
+      console.log('✅ Connexion admin réussie !');
       setShowAdminLogin(false);
       setAdminCredentials({ username: '', password: '' });
+      
+      // Appeler le callback parent pour naviguer vers la page admin
+      if (onAdminLogin) {
+        onAdminLogin();
+      }
     } else {
-      alert('Veuillez entrer un nom d\'utilisateur et un mot de passe');
+      setLoginError('Identifiants incorrects. Utilisez tessiern782@gmail.com / Password1');
     }
   };
 
@@ -52,6 +62,8 @@ const AccueilFormations = ({
       ...prev,
       [name]: value
     }));
+    // Effacer l'erreur quand l'utilisateur tape
+    if (loginError) setLoginError('');
   };
 
   return (
@@ -113,7 +125,11 @@ const AccueilFormations = ({
               <h2>Connexion Administrateur</h2>
               <button 
                 className="close-button"
-                onClick={() => setShowAdminLogin(false)}
+                onClick={() => {
+                  setShowAdminLogin(false);
+                  setLoginError('');
+                  setAdminCredentials({ username: '', password: '' });
+                }}
               >
                 ×
               </button>
@@ -123,12 +139,12 @@ const AccueilFormations = ({
               <div className="form-group">
                 <label htmlFor="username">Nom d'utilisateur</label>
                 <input
-                  type="text"
+                  type="email"
                   id="username"
                   name="username"
                   value={adminCredentials.username}
                   onChange={handleAdminInputChange}
-                  placeholder="Entrez votre nom d'utilisateur"
+                  placeholder="tessiern782@gmail.com"
                   required
                 />
               </div>
@@ -141,10 +157,16 @@ const AccueilFormations = ({
                   name="password"
                   value={adminCredentials.password}
                   onChange={handleAdminInputChange}
-                  placeholder="Entrez votre mot de passe"
+                  placeholder="Password1"
                   required
                 />
               </div>
+
+              {loginError && (
+                <div className="login-error">
+                  {loginError}
+                </div>
+              )}
 
               <div className="admin-form-buttons">
                 <button type="submit" className="login-button">
@@ -153,7 +175,11 @@ const AccueilFormations = ({
                 <button 
                   type="button" 
                   className="cancel-button"
-                  onClick={() => setShowAdminLogin(false)}
+                  onClick={() => {
+                    setShowAdminLogin(false);
+                    setLoginError('');
+                    setAdminCredentials({ username: '', password: '' });
+                  }}
                 >
                   Annuler
                 </button>

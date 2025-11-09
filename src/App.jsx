@@ -4,13 +4,15 @@ import AccueilFormations from './components/AccueilFormations';
 import DescriptionFormation from './components/DescriptionFormation';
 import ConfirmationReservation from './components/ConfirmationReservation';
 import ErreurReservation from './components/ErreurReservation';
+import PageAdministrateur from './components/PageAdministrateur'; // ✅ AJOUT: Import de la page admin
 import './App.css';
 
 function App() {
-  const [currentPage, setCurrentPage] = useState('accueil'); // 'accueil', 'description', 'confirmation', 'erreur'
+  const [currentPage, setCurrentPage] = useState('accueil'); // 'accueil', 'description', 'confirmation', 'erreur', 'admin'
   const [selectedFormation, setSelectedFormation] = useState(null);
   const [reservationData, setReservationData] = useState(null);
   const [formations, setFormations] = useState({});
+  const [isAdmin, setIsAdmin] = useState(false); // ✅ AJOUT: État pour vérifier si admin connecté
 
   useEffect(() => {
     const fetchFormations = async () => {
@@ -63,6 +65,13 @@ function App() {
     setCurrentPage('description');
   };
 
+  // ✅ AJOUT: Gestion de la connexion admin
+  const handleAdminLogin = () => {
+    console.log('🔐 Connexion admin réussie, navigation vers page admin');
+    setIsAdmin(true);
+    setCurrentPage('admin');
+  };
+
   const handleReservationSuccess = (reservationInfo) => {
     setReservationData(reservationInfo);
     setCurrentPage('confirmation');
@@ -77,7 +86,17 @@ function App() {
     setCurrentPage('accueil');
     setSelectedFormation(null);
     setReservationData(null);
+    setIsAdmin(false); // ✅ AJOUT: Déconnecter l'admin quand il retourne à l'accueil
   };
+
+  // ✅ AJOUT: Afficher la page admin si connecté
+  if (currentPage === 'admin' && isAdmin) {
+    return (
+      <PageAdministrateur 
+        onRetourAccueil={handleRetourAccueil}
+      />
+    );
+  }
 
   // Afficher la page de confirmation
   if (currentPage === 'confirmation') {
@@ -112,6 +131,7 @@ function App() {
     <AccueilFormations 
       formations={formations}
       onFormationSelect={handleFormationSelect}
+      onAdminLogin={handleAdminLogin} // ✅ AJOUT: Passer le callback pour l'admin
     />
   );
 }
