@@ -52,6 +52,29 @@ const ConfirmationReservation = ({
               </div>
             </div>
             
+            {/* ✅ AJOUT: Section confirmation email */}
+            <div className="email-confirmation-section">
+              <div className="email-card">
+                <div className="email-icon">✉️</div>
+                <div className="email-content">
+                  <h3>Email de confirmation envoyé</h3>
+                  <p>
+                    Un email de confirmation détaillé a été envoyé à <strong>{email}</strong>.
+                    Vérifiez votre boîte de réception (et vos spams) pour retrouver tous les détails de votre réservation.
+                  </p>
+                  <div className="email-note">
+                    <p>📧 <strong>Contenu de l'email :</strong></p>
+                    <ul>
+                      <li>Détails complets de votre réservation</li>
+                      <li>Informations pratiques pour la formation</li>
+                      <li>Numéro de référence unique</li>
+                      <li>Contacts en cas de questions</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div className="next-steps">
               <div className="steps-card">
                 <h3>Prochaines étapes</h3>
@@ -59,7 +82,7 @@ const ConfirmationReservation = ({
                   <div className="step">
                     <span className="step-number">1</span>
                     <span className="step-text">
-                      <strong>Email de confirmation</strong> - Vous recevrez un email de confirmation dans les prochaines minutes
+                      <strong>Vérifiez votre email</strong> - Consultez votre boîte de réception pour le email de confirmation
                     </span>
                   </div>
                   <div className="step">

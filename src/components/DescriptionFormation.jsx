@@ -27,6 +27,7 @@ const DescriptionFormation = ({
   const [errors, setErrors] = useState({});
   const [instancesDisponibles, setInstancesDisponibles] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false); // ✅ NOUVEAU: État pour la soumission
 
   const jours = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
 
@@ -153,12 +154,11 @@ const formatDatePourSelect = (dateString) => {
 
   // DescriptionFormation.jsx - MODIFICATIONS DANS LA FONCTION handleSubmit
 
-// ✅ MODIFIÉ: Soumission avec redirection
 const handleSubmit = async (e) => {
   e.preventDefault();
   const newErrors = {};
 
-  // Validation
+  // ✅ GARDER TOUTE LA VALIDATION EXISTANTE (ne rien changer)
   if (!formData.nom.trim()) {
     newErrors.nom = 'Le nom est requis';
   } else if (!validateName(formData.nom)) {
@@ -190,8 +190,11 @@ const handleSubmit = async (e) => {
     return;
   }
 
+  // ✅ DÉBUT: Activer l'état de soumission
+  setSubmitting(true);
+
   try {
-    // Trouver l'instance sélectionnée
+    // ✅ GARDER TOUT LE CODE EXISTANT de la soumission
     const instanceSelectionnee = instancesDisponibles.find(
       instance => formatDatePourSelect(instance.date) === formData.dateSelectionnee
     );
@@ -200,7 +203,6 @@ const handleSubmit = async (e) => {
       throw new Error('Instance non trouvée');
     }
 
-    // Envoyer la réservation à l'API
     const response = await fetch('http://localhost:3000/api/reservations', {
       method: 'POST',
       headers: {
@@ -222,7 +224,6 @@ const handleSubmit = async (e) => {
 
     const result = await response.json();
     
-    // ✅ SUCCÈS: Rediriger vers la page de confirmation
     if (onReservationSuccess) {
       const dateFormatee = formatDateAffichage(formData.dateSelectionnee + 'T00:00:00');
       onReservationSuccess({
@@ -238,7 +239,6 @@ const handleSubmit = async (e) => {
   } catch (error) {
     console.error('Erreur réservation:', error);
     
-    // ✅ ERREUR: Rediriger vers la page d'erreur
     if (onReservationError) {
       onReservationError({
         message: error.message,
@@ -246,6 +246,9 @@ const handleSubmit = async (e) => {
         date: formData.dateSelectionnee
       });
     }
+  } finally {
+    // ✅ FIN: Désactiver l'état de soumission (dans tous les cas)
+    setSubmitting(false);
   }
 };
 
@@ -472,17 +475,22 @@ const handleSubmit = async (e) => {
                 </div>
 
                 <div className="form-buttons">
-                  <button 
-                    type="submit" 
-                    className="submit-button"
-                    disabled={loading || instancesDisponibles.filter(i => !i.complet).length === 0}
-                  >
-                    {loading ? 'Traitement...' : 'Confirmer l\'inscription'}
-                  </button>
-                  <button type="button" className="cancel-button" onClick={closeForm}>
-                    Annuler
-                  </button>
-                </div>
+  <button 
+    type="submit" 
+    className="submit-button"
+    disabled={submitting || loading || instancesDisponibles.filter(i => !i.complet).length === 0}
+  >
+    {submitting ? 'Traitement en cours...' : 'Confirmer l\'inscription'}
+  </button>
+  <button 
+    type="button" 
+    className="cancel-button" 
+    onClick={closeForm}
+    disabled={submitting}
+  >
+    Annuler
+  </button>
+</div>
               </form>
             </div>
           </div>

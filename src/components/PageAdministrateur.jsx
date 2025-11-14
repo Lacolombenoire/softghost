@@ -10,7 +10,7 @@ const PageAdministrateur = ({
   const [filtreStatut, setFiltreStatut] = useState('toutes'); // 'toutes', 'disponibles', 'pleines'
   const [filtreFormation, setFiltreFormation] = useState('toutes'); // 'toutes' ou id_formation spécifique
   const [formations, setFormations] = useState([]);
-  const [typesFormation, setTypesFormation] = useState([]); // ✅ AJOUT: Liste des types de formation
+  const [typesFormation, setTypesFormation] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Récupérer les vraies données depuis l'API
@@ -28,7 +28,7 @@ const PageAdministrateur = ({
         console.log('📊 Données admin:', data);
         setFormations(data);
         
-        // ✅ AJOUT: Extraire les types de formation uniques
+        // Extraire les types de formation uniques
         const typesUniques = [...new Set(data.map(item => ({
           id: item.id_formation,
           nom: item.nom
@@ -52,7 +52,7 @@ const PageAdministrateur = ({
   // Trier les formations par date
   const formationsTriees = [...formations].sort((a, b) => new Date(a.date) - new Date(b.date));
 
-  // ✅ MODIFIÉ: Filtrer les formations selon les filtres sélectionnés
+  // Filtrer les formations selon les filtres sélectionnés
   const formationsFiltrees = formationsTriees.filter(formation => {
     // Filtre par statut (pleines/disponibles)
     let filtreStatutOk = true;
@@ -62,7 +62,7 @@ const PageAdministrateur = ({
       filtreStatutOk = formation.inscrits < 30;
     }
 
-    // ✅ AJOUT: Filtre par type de formation
+    // Filtre par type de formation
     let filtreTypeOk = true;
     if (filtreFormation !== 'toutes') {
       filtreTypeOk = formation.id_formation === filtreFormation;
@@ -142,7 +142,7 @@ const PageAdministrateur = ({
         <div className="filtres-section">
           <h2>Filtrer les sessions</h2>
           
-          {/* ✅ AJOUT: Filtre par type de formation */}
+          {/* Filtre par type de formation */}
           <div className="filtre-groupe">
             <label htmlFor="filtre-formation" className="filtre-label">
               📚 Type de formation :
@@ -187,7 +187,7 @@ const PageAdministrateur = ({
             </div>
           </div>
 
-          {/* ✅ AJOUT: Résumé des filtres */}
+          {/* Résumé des filtres */}
           <div className="filtres-resume">
             <p>
               Affichage de <strong>{formationsFiltrees.length}</strong> session(s) 
@@ -267,15 +267,7 @@ const PageAdministrateur = ({
                       </div>
                     </div>
 
-                    {/* Actions */}
-                    <div className="formation-actions">
-                      <button className="action-btn details-btn">
-                        Voir les détails
-                      </button>
-                      <button className="action-btn export-btn">
-                        Exporter la liste
-                      </button>
-                    </div>
+                    {/* ✅ SUPPRIMÉ: Section des actions */}
                   </div>
                 );
               })}
