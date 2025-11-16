@@ -1,0 +1,1 @@
+SELECT public.generer_instances_annee();

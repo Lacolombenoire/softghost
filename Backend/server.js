@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
-app.use('/images', express.static(path.join(__dirname, '../src/assets/images')));
+app.use('/images', express.static( './images'));
 
 // Routes
 app.use('/api', formationRoutes);

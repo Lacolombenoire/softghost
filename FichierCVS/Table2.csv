@@ -1,0 +1,5 @@
+"schema_name","table_name","constraint_name","column_name","constraint_type"
+"public","formation","Formation_pkey","id_formation","p"
+"public","formation_instance","formation_instance_pkey","id_formation_instance","p"
+"public","reservation","Reservation_pkey","id_reservation","p"
+"public","table_reservation","table_reservation_pkey","id_reservation","p"
