@@ -1,0 +1,361 @@
+"object_type","schema_name","object_name","table_name","definition","details"
+"FUNCTION","public","generate_formation_id","","CREATE OR REPLACE FUNCTION public.generate_formation_id()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+    next_number INT;
+BEGIN
+    -- Cherche le numéro maximum déjà utilisé dans id_formation
+    SELECT COALESCE(MAX(CAST(SUBSTRING(id_formation FROM '[0-9]+') AS INT)), 0) + 1
+    INTO next_number
+    FROM formation;
+
+    -- Assigne un nouvel ID sous la forme 'formation' + nombre
+    NEW.id_formation := 'formation' || next_number;
+
+    RETURN NEW;
+END;
+$function$
+",""
+"FUNCTION","public","generate_formation_instance_id","","CREATE OR REPLACE FUNCTION public.generate_formation_instance_id()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+    next_number INT;
+BEGIN
+    SELECT COALESCE(MAX(CAST(SUBSTRING(id_formation_instance FROM '[0-9]+') AS INT)), 0) + 1
+    INTO next_number
+    FROM formation_instance;
+
+    NEW.id_formation_instance := 'formation_instance' || next_number;
+
+    RETURN NEW;
+END;
+$function$
+",""
+"FUNCTION","public","generate_reservation_id","","CREATE OR REPLACE FUNCTION public.generate_reservation_id()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+    next_number INT;
+BEGIN
+    SELECT COALESCE(MAX(CAST(SUBSTRING(id_reservation FROM '[0-9]+') AS INT)), 0) + 1
+    INTO next_number
+    FROM reservation;
+
+    NEW.id_reservation := 'reservation' || next_number;
+
+    RETURN NEW;
+END;
+$function$
+",""
+"FUNCTION","public","generer_instances_annee","","CREATE OR REPLACE FUNCTION public.generer_instances_annee()
+ RETURNS void
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+    formation_record RECORD;
+    date_courante DATE;
+    date_fin DATE;
+    jour_semaine_formation INTEGER;
+    jour_semaine_courant INTEGER;
+    v_instance_exists BOOLEAN;
+BEGIN
+    date_courante := CURRENT_DATE;
+    date_fin := CURRENT_DATE + INTERVAL '1 year';
+    
+    -- Pour chaque formation
+    FOR formation_record IN SELECT * FROM formation LOOP
+        date_courante := CURRENT_DATE;
+        
+        WHILE date_courante <= date_fin LOOP
+            -- Convertir le jour de la semaine (PostgreSQL: 0=dimanche, 6=samedi)
+            -- Notre système: 0=lundi, 6=dimanche
+            jour_semaine_courant := (EXTRACT(DOW FROM date_courante)::INTEGER + 6) % 7;
+            
+            -- Vérifier si c'est le bon jour de la semaine
+            IF jour_semaine_courant = formation_record.jour_semaine THEN
+                -- Vérifier si l'instance existe déjà
+                SELECT EXISTS(
+                    SELECT 1 
+                    FROM formation_instance 
+                    WHERE id_reference_formation = formation_record.id_formation 
+                    AND jour = date_courante
+                ) INTO v_instance_exists;
+                
+                -- Créer l'instance seulement si elle n'existe pas
+                IF NOT v_instance_exists THEN
+                    INSERT INTO formation_instance (jour, id_reference_formation)
+                    VALUES (date_courante, formation_record.id_formation);
+                END IF;
+            END IF;
+            
+            date_courante := date_courante + INTERVAL '1 day';
+        END LOOP;
+    END LOOP;
+END;
+$function$
+",""
+"FUNCTION","public","get_formation_instances_with_counts","","CREATE OR REPLACE FUNCTION public.get_formation_instances_with_counts(debut integer, fin integer)
+ RETURNS TABLE(id_formation_instance text, jour date, id_reference_formation text, nombre_inscription integer)
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+    -- 🔹 Validation des paramètres
+    IF debut < 1 THEN
+        RAISE EXCEPTION 'Le paramètre ""debut"" doit être supérieur ou égal à 1.';
+    END IF;
+
+    IF fin <= debut THEN
+        RAISE EXCEPTION 'Le paramètre ""fin"" doit être supérieur au paramètre ""debut"".';
+    END IF;
+
+    -- 🔹 Retourner la table avec le nombre d'inscriptions et le sous-ensemble demandé
+    RETURN QUERY
+    SELECT 
+        fi.id_formation_instance,
+        fi.jour,
+        fi.id_reference_formation,
+        COUNT(tr.id_reservation) AS nombre_inscription
+    FROM formation_instance fi
+    LEFT JOIN table_reservation tr
+        ON fi.id_formation_instance = tr.id_formation_instance
+    GROUP BY fi.id_formation_instance, fi.jour, fi.id_reference_formation
+    ORDER BY fi.jour DESC
+    OFFSET (debut - 1)
+    LIMIT (fin - debut + 1);
+END;
+$function$
+","debut integer, fin integer"
+"FUNCTION","public","obtenir_instance_par_id","","CREATE OR REPLACE FUNCTION public.obtenir_instance_par_id(p_id_formation_instance character varying)
+ RETURNS TABLE(id_formation_instance character varying, jour date, id_formation character varying, nom_formation character varying, jour_semaine integer, heure_debut time without time zone, heure_fin time without time zone, nombre_reservations bigint, places_restantes bigint, est_complete boolean)
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        fi.id_formation_instance,
+        fi.jour,
+        fi.id_formation,
+        f.nom::VARCHAR as nom_formation,
+        f.jour_semaine,
+        f.heure_debut,
+        f.heure_fin,
+        COUNT(tr.id_reservation)::BIGINT as nombre_reservations,
+        (30 - COUNT(tr.id_reservation))::BIGINT as places_restantes,
+        (COUNT(tr.id_reservation) >= 30)::BOOLEAN as est_complete
+    FROM formation_instance fi
+    JOIN formation f ON fi.id_formation = f.id_formation
+    LEFT JOIN table_reservation tr ON fi.id_formation_instance = tr.id_formation_instance
+    WHERE fi.id_formation_instance = p_id_formation_instance
+    GROUP BY fi.id_formation_instance, fi.jour, fi.id_formation, f.nom, f.jour_semaine, f.heure_debut, f.heure_fin;
+END;
+$function$
+","p_id_formation_instance character varying"
+"FUNCTION","public","obtenir_instances_detaillees","","CREATE OR REPLACE FUNCTION public.obtenir_instances_detaillees()
+ RETURNS TABLE(id_formation_instance character varying, jour date, id_formation character varying, nom_formation character varying, jour_semaine integer, heure_debut time without time zone, heure_fin time without time zone, nombre_reservations bigint, places_restantes bigint, est_complete boolean)
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        fi.id_formation_instance,
+        fi.jour,
+        fi.id_formation,
+        f.nom::VARCHAR as nom_formation,
+        f.jour_semaine,
+        f.heure_debut,
+        f.heure_fin,
+        COUNT(tr.id_reservation)::BIGINT as nombre_reservations,
+        (30 - COUNT(tr.id_reservation))::BIGINT as places_restantes,
+        (COUNT(tr.id_reservation) >= 30)::BOOLEAN as est_complete
+    FROM formation_instance fi
+    JOIN formation f ON fi.id_formation = f.id_formation
+    LEFT JOIN table_reservation tr ON fi.id_formation_instance = tr.id_formation_instance
+    GROUP BY fi.id_formation_instance, fi.jour, fi.id_formation, f.nom, f.jour_semaine, f.heure_debut, f.heure_fin
+    ORDER BY fi.jour DESC, f.nom;
+END;
+$function$
+",""
+"FUNCTION","public","obtenir_instances_disponibles_formation","","CREATE OR REPLACE FUNCTION public.obtenir_instances_disponibles_formation(p_id_formation character varying)
+ RETURNS TABLE(id_formation_instance character varying, jour date, heure_debut time without time zone, heure_fin time without time zone, inscriptions_actuelles bigint, places_restantes bigint, est_complete boolean)
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        fi.id_formation_instance, fi.jour, f.heure_debut, f.heure_fin,
+        COUNT(tr.id_reservation)::BIGINT as inscriptions_actuelles,
+        (30 - COUNT(tr.id_reservation))::BIGINT as places_restantes,
+        (COUNT(tr.id_reservation) >= 30)::BOOLEAN as est_complete
+    FROM formation_instance fi
+    JOIN formation f ON fi.id_reference_formation = f.id_formation
+    LEFT JOIN table_reservation tr ON fi.id_formation_instance = tr.id_formation_instance
+    WHERE f.id_formation = p_id_formation
+        AND fi.jour BETWEEN CURRENT_DATE AND (CURRENT_DATE + INTERVAL '3 months')
+    GROUP BY fi.id_formation_instance, fi.jour, f.heure_debut, f.heure_fin
+    HAVING COUNT(tr.id_reservation) < 30
+    ORDER BY fi.jour;
+END;
+$function$
+","p_id_formation character varying"
+"FUNCTION","public","set_formation_id","","CREATE OR REPLACE FUNCTION public.set_formation_id()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+    next_number INT := 1;
+    new_id TEXT;
+BEGIN
+    LOOP
+        new_id := 'formation' || next_number;
+
+        IF NOT EXISTS (SELECT 1 FROM formation WHERE id_formation = new_id) THEN
+            NEW.id_formation := new_id;
+            EXIT;
+        END IF;
+
+        next_number := next_number + 1;
+    END LOOP;
+
+    RETURN NEW;
+END;
+$function$
+",""
+"FUNCTION","public","set_formation_instance_id","","CREATE OR REPLACE FUNCTION public.set_formation_instance_id()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+    next_number INT := 1;
+    new_id TEXT;
+BEGIN
+    LOOP
+        new_id := 'formation_instance' || next_number;
+
+        IF NOT EXISTS (SELECT 1 FROM formation_instance WHERE id_formation_instance = new_id) THEN
+            NEW.id_formation_instance := new_id;
+            EXIT;
+        END IF;
+
+        next_number := next_number + 1;
+    END LOOP;
+
+    RETURN NEW;
+END;
+$function$
+",""
+"FUNCTION","public","set_reservation_id","","CREATE OR REPLACE FUNCTION public.set_reservation_id()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+    next_number INT := 1;
+    new_id TEXT;
+BEGIN
+    LOOP
+        -- Générer un nouvel ID
+        new_id := 'reservation' || next_number;
+
+        -- Vérifier si l'ID existe déjà
+        IF NOT EXISTS (SELECT 1 FROM reservation WHERE id_reservation = new_id) THEN
+            NEW.id_reservation := new_id;
+            EXIT; -- On sort si l'ID est unique
+        END IF;
+
+        -- Sinon, on incrémente et on réessaie
+        next_number := next_number + 1;
+    END LOOP;
+
+    RETURN NEW;
+END;
+$function$
+",""
+"FUNCTION","public","verif_jour_formation_instance","","CREATE OR REPLACE FUNCTION public.verif_jour_formation_instance()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+    expected_jour_semaine INT;
+    jour_actuel_semaine INT;
+    diff INT;
+BEGIN
+    -- 1️⃣ Récupérer le jour_semaine de la formation associée
+    SELECT jour_semaine INTO expected_jour_semaine
+    FROM formation
+    WHERE id_formation = NEW.id_reference_formation;
+
+    IF expected_jour_semaine IS NULL THEN
+        RAISE EXCEPTION 'Aucune formation trouvée pour id_reference_formation = %', NEW.id_reference_formation;
+    END IF;
+
+    -- 2️⃣ Trouver le jour de la semaine de la date actuelle (0 = lundi, 6 = dimanche)
+    jour_actuel_semaine := EXTRACT(DOW FROM NEW.jour);
+    -- En PostgreSQL : 0 = dimanche → on transforme pour que 0 = lundi
+    jour_actuel_semaine := (jour_actuel_semaine + 6) % 7;
+
+    -- 3️⃣ Si le jour correspond, on ne fait rien
+    IF jour_actuel_semaine = expected_jour_semaine THEN
+        RETURN NEW;
+    END IF;
+
+    -- 4️⃣ Sinon, on ajuste la date pour correspondre au jour attendu
+    diff := expected_jour_semaine - jour_actuel_semaine;
+
+    -- Si diff est négatif, on ajoute 7 et on choisit le jour le plus proche (avant ou après)
+    IF ABS(diff) > 3 THEN
+        -- Si la différence est trop grande, on préfère aller en arrière
+        IF diff > 0 THEN
+            diff := diff - 7;
+        ELSE
+            diff := diff + 7;
+        END IF;
+    END IF;
+
+    -- 5️⃣ Correction de la date
+    NEW.jour := NEW.jour + diff * INTERVAL '1 day';
+
+    RAISE NOTICE 'Date ajustée automatiquement de % jours pour correspondre au jour_semaine attendu (%).', diff, expected_jour_semaine;
+
+    RETURN NEW;
+END;
+$function$
+",""
+"FUNCTION","public","verif_max_reservations","","CREATE OR REPLACE FUNCTION public.verif_max_reservations()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+DECLARE
+    nb_reservations INT;
+BEGIN
+    -- Compter le nombre de réservations pour l'instance de formation
+    SELECT COUNT(*)
+    INTO nb_reservations
+    FROM table_reservation
+    WHERE ID_formation_instance = NEW.ID_formation_instance;
+
+    -- Si c'est un INSERT, ajouter +1 pour inclure la nouvelle ligne
+    IF TG_OP = 'INSERT' THEN
+        nb_reservations := nb_reservations + 1;
+    END IF;
+
+    -- Vérification : pas plus de 30 réservations
+    IF nb_reservations > 30 THEN
+        RAISE EXCEPTION 'Impossible dassocier plus de 30 reservations à une instance de formation';
+    END IF;
+
+    RETURN NEW;
+END;
+$function$
+",""
+"TRIGGER","public","trg_generate_formation_id","formation","CREATE TRIGGER trg_generate_formation_id BEFORE INSERT ON public.formation FOR EACH ROW WHEN ((new.id_formation IS NULL)) EXECUTE FUNCTION generate_formation_id()","ROW LEVEL"
+"TRIGGER","public","trg_generate_formation_instance_id","formation_instance","CREATE TRIGGER trg_generate_formation_instance_id BEFORE INSERT ON public.formation_instance FOR EACH ROW WHEN ((new.id_formation_instance IS NULL)) EXECUTE FUNCTION generate_formation_instance_id()","ROW LEVEL"
+"TRIGGER","public","trg_generate_reservation_id","reservation","CREATE TRIGGER trg_generate_reservation_id BEFORE INSERT ON public.reservation FOR EACH ROW WHEN ((new.id_reservation IS NULL)) EXECUTE FUNCTION generate_reservation_id()","ROW LEVEL"
+"TRIGGER","public","trg_set_formation_id","formation","CREATE TRIGGER trg_set_formation_id BEFORE INSERT ON public.formation FOR EACH ROW EXECUTE FUNCTION set_formation_id()","ROW LEVEL"
+"TRIGGER","public","trg_set_formation_instance_id","formation_instance","CREATE TRIGGER trg_set_formation_instance_id BEFORE INSERT ON public.formation_instance FOR EACH ROW EXECUTE FUNCTION set_formation_instance_id()","ROW LEVEL"
+"TRIGGER","public","trg_set_reservation_id","reservation","CREATE TRIGGER trg_set_reservation_id BEFORE INSERT ON public.reservation FOR EACH ROW EXECUTE FUNCTION set_reservation_id()","ROW LEVEL"
+"TRIGGER","public","trg_verif_jour_formation_instance","formation_instance","CREATE TRIGGER trg_verif_jour_formation_instance BEFORE INSERT OR UPDATE ON public.formation_instance FOR EACH ROW EXECUTE FUNCTION verif_jour_formation_instance()","ROW LEVEL"
+"TRIGGER","public","trigger_verif_max_reservations","table_reservation","CREATE TRIGGER trigger_verif_max_reservations BEFORE INSERT OR UPDATE ON public.table_reservation FOR EACH ROW EXECUTE FUNCTION verif_max_reservations()","ROW LEVEL"

@@ -1,0 +1,36 @@
+"schema_name","table_name","create_statement"
+"public","formation","CREATE TABLE public.formation (
+    description text,
+    id_formation text NOT NULL,
+    jour_semaine integer NOT NULL,
+    nom text NOT NULL,
+    heure_debut time without time zone NOT NULL,
+    heure_fin time without time zone NOT NULL,
+    chemins_images text[],
+    CONSTRAINT check_jour_semaine CHECK (((jour_semaine <= 6) AND (jour_semaine >= 0))),
+    CONSTRAINT Formation_pkey PRIMARY KEY (id_formation),
+    CONSTRAINT check_periode CHECK ((heure_debut < heure_fin)) NOT VALID
+);"
+"public","formation_instance","CREATE TABLE public.formation_instance (
+    id_formation_instance text NOT NULL,
+    id_reference_formation text NOT NULL,
+    jour date NOT NULL,
+    CONSTRAINT formation_instance_pkey PRIMARY KEY (id_formation_instance),
+    CONSTRAINT check_formation_instance CHECK ((id_formation_instance ~ '^formation_instance[1-9][0-9]*$'::text)) NOT VALID
+);"
+"public","reservation","CREATE TABLE public.reservation (
+    prenom text NOT NULL,
+    courriel text NOT NULL,
+    telephone bigint,
+    nom text NOT NULL,
+    id_reservation text NOT NULL,
+    CONSTRAINT verification_ID CHECK ((id_reservation ~ '^reservation[1-9][0-9]*$'::text)),
+    CONSTRAINT courriel_check CHECK ((courriel ~ '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'::text)),
+    CONSTRAINT Reservation_pkey PRIMARY KEY (id_reservation),
+    CONSTRAINT telephone_check CHECK (((telephone >= 0) AND (telephone <= '99999999999'::bigint)))
+);"
+"public","table_reservation","CREATE TABLE public.table_reservation (
+    id_reservation text NOT NULL,
+    id_formation_instance text NOT NULL,
+    CONSTRAINT table_reservation_pkey PRIMARY KEY (id_reservation)
+);"

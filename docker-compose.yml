@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  database:
+    image: postgres:15
+    container_name: softghost-db
+    environment:
+      POSTGRES_DB: softghost2
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
+    networks:
+      - app-network
+
+  backend:
+    build: ./backend
+    container_name: softghost-backend
+    environment:
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_NAME: softghost
+      DB_USER: postgres
+      DB_PASSWORD: password
+      NODE_ENV: production
+    ports:
+      - "3000:3000"
+    depends_on:
+      - database
+    networks:
+      - app-network
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+  frontend:
+    build: ./frontend
+    container_name: softghost-frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+    environment:
+      VITE_API_URL: http://localhost:3000
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

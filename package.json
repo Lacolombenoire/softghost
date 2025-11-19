@@ -1,0 +1,11 @@
+{
+  "name": "softghost",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "docker-compose up",
+    "dev:build": "docker-compose up --build",
+    "down": "docker-compose down",
+    "clean": "docker-compose down -v --remove-orphans",
+    "logs": "docker-compose logs -f"
+  }
+}

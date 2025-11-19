@@ -1,0 +1,4 @@
+"schema_name","table_name","constraint_name","columns","foreign_schema","foreign_table","foreign_columns","constraint_definition"
+"public","formation_instance","reference_formation","{id_reference_formation}","public","formation","{id_formation}","FOREIGN KEY (id_reference_formation) REFERENCES formation(id_formation) NOT VALID"
+"public","table_reservation","association_formation_instance","{id_formation_instance}","public","formation_instance","{id_formation_instance}","FOREIGN KEY (id_formation_instance) REFERENCES formation_instance(id_formation_instance) NOT VALID"
+"public","table_reservation","association_reservation","{id_reservation}","public","reservation","{id_reservation}","FOREIGN KEY (id_reservation) REFERENCES reservation(id_reservation) NOT VALID"

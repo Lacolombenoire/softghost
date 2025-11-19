@@ -1,0 +1,7 @@
+"schema_name","table_name","constraint_name","constraint_type","constraint_definition"
+"public","formation","check_jour_semaine","C","CHECK (((jour_semaine <= 6) AND (jour_semaine >= 0)))"
+"public","formation","check_periode","C","CHECK ((heure_debut < heure_fin)) NOT VALID"
+"public","formation_instance","check_formation_instance","C","CHECK ((id_formation_instance ~ '^formation_instance[1-9][0-9]*$'::text)) NOT VALID"
+"public","reservation","courriel_check","C","CHECK ((courriel ~ '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'::text))"
+"public","reservation","telephone_check","C","CHECK (((telephone >= 0) AND (telephone <= '99999999999'::bigint)))"
+"public","reservation","verification_ID","C","CHECK ((id_reservation ~ '^reservation[1-9][0-9]*$'::text))"
