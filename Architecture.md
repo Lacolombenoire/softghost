@@ -79,6 +79,24 @@ il est important de comprendre que le schéma de la base de données à évidemm
 ![[UML diagramme softghost-Frontend.drawio.png]]
 
 
+le frontend est séparé en plusieurs pages ayant chacun leur rôle dans l'application web. L'ensemble des designs de cette application ont été rédigés conçu par intelligence artificielle sans contrainte spécifique. Voici la description et l'utilité de chaque page web rédiger à l'aide du framework React:
+
+
+
+## App
+
+cette page n'a pas réellement de design car elle représente l'élément racine de l'application web et sert principalement d'hôte pour les autres composants. Elle contient des routes qui redirigent l'utilisateur vers les différentes pages du site. Elle fait donc office de main pour le frontend.
+
+
+## accueilformation
+
+cette page sert principalement à demander à l'utilisateur s'il souhaite s'inscrire à une formation ou s'il souhaite accéder à la page administrateur. Elle ne fait que lister les différents logiciels pour lesquels des formations sont disponibles et permet à l'utilisateur de cliquer sur le nom du logiciel qui l'intéresse. Une fois qu'un logiciel est cliqué, il redirige vers la page descriptionformation. Les logiciels sont listés exactement comme des produits sur un site de e-commerce avec des images et des noms accrocheurs pour inciter l'utilisateur à cliquer. L'utilisateur peut aussi cliquer sur un bouton en haut à droite pour accéder à la page administrateur. Cependant il doit entrer le mot de passe et le nom d'utilisateur afin de pouvoir accéder à cette page. Cependant par souci de simplicité le nom d'utilisateur ainsi que le mot de passe ont été écrits en gris transparent dans l'arrière-plan des zones de texte. Cela permet à l'enseignant de mieux corriger le dit application web. Dans un cas réel il faudrait ajouter 2 choses. Premièrement il faudrait être capable, en tant que administrateur. de créer de nouveaux administrateur. Deuxièmement il faudrait que les mots de passe et les non utilisateurs ne sont pas affichés en gris transparent dans l'arrière-plan des zones de texte. Cela permettrait une meilleure sécurité et un meilleur respect des données personnelles. De plus pour des besoins de cybersécurité il faudrait être capable d'encrypter les mots de passe avec du hachage notamment. Cela permettrait d'avoir une application web beaucoup mieux sécurisée pour ce qui est des comptes administrateurs et des contrôles d'accès. Cette page est donc une introduction simple à l'application web, conçue pour guider les utilisateurs vers leurs besoins spécifiques. 
+
+
+
+
+
+
 
 # Gestion des processus
 ![[UML diagramme softghost-Processus.drawio.png]]
