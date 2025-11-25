@@ -9,6 +9,7 @@ Voici les conversation avec DeepSeek afin de créer l'application web dans le ca
 + https://chat.deepseek.com/share/oy9yxkif6tgq6y9pgb
 + https://chat.deepseek.com/share/wpzqgv6wcwtb5krz9y
 
+Vous pouvez aussi trouver ces conversation dans des PDF nommez Softgost de 1 à 5 dans le dossier de documentation.
 
 Vous pouvez donc consulter les prompt de chaque conversations pour comprendre le contexte et la direction que prend le projet.
 
